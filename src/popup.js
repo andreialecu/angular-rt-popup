@@ -30,7 +30,7 @@ angular.module('rt.popup', [])
 
             $timeout(function () {
                 $parse(popup.options.popupHidden)(popup.scope);
-
+                popup.scope.$destroy();
                 popup.el.hide().remove();
                 $document.off('click', loseFocus);
                 $document.off('mousedown', checkMouseDown);
@@ -220,11 +220,12 @@ angular.module('rt.popup', [])
         }
 
         function makePopup(anchor, scope, options) {
-            var element = $compile(template)(scope);
+            var newScope = scope.$new();
+            var element = $compile(template)(newScope);
             openedPopup = {
                 el: element,
                 options: options,
-                scope: scope
+                scope: newScope
             };
 
             var body = $document.find('body');
@@ -235,7 +236,7 @@ angular.module('rt.popup', [])
             element.children('.arrow').remove();
             element.append(arrow);
 
-            scope.$reposition = function () {
+            newScope.$reposition = function () {
                 // add extra class here, to ensure that the width calculation takes this into account
                 var extra_class = options.popupClass;
                 if (extra_class) {
@@ -243,7 +244,7 @@ angular.module('rt.popup', [])
                 }
 
                 $timeout(function () {
-                    fixPosition(scope, anchor, element, arrow, options);
+                    fixPosition(newScope, anchor, element, arrow, options);
                 });
             };
         }
